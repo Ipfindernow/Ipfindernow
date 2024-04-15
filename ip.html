@@ -1,170 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stock Data and Articles</title>
-<style>
-    /* Add some basic styling */
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        margin: 0;
-        padding: 0;
-    }
-    .container {
-        max-width: 800px;
-        margin: 50px auto;
-        padding: 20px;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    h2 {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    #stockData {
-        margin-bottom: 20px;
-    }
-    .article {
-        margin-bottom: 10px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #ccc;
-    }
-    .article h3 {
-        margin-top: 0;
-    }
-    .update-time {
-        text-align: right;
-        font-size: 12px;
-    }
-    .light {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        display: inline-block;
-    }
-    .green-light {
-        background-color: green;
-    }
-    .red-light {
-        background-color: red;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Sign Up</title>
+    <style>
+        /* Add your CSS styles for the main page here */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        header {
+            background-color: #666;
+            color: #fff;
+            padding: 50px;
+        }
+        main {
+            padding: 40px;
+        }
+    </style>
 </head>
 <body>
+    <header>
+        <h1></h1>
+    </header>
 
-<div class="container">
-    <h2>Stock Data and Articles</h2>
-    <form id="searchForm">
-        <label for="symbol">Enter Stock Symbol:</label>
-        <input type="text" id="symbol" name="symbol" required>
-        <label for="exchange">Exchange:</label>
-        <input type="text" id="exchange" name="exchange" required placeholder="e.g., NASDAQ, NYSE">
-        <button type="submit">Search</button>
-    </form>
-    <div id="stockData"></div>
-    <div id="articles"></div>
-    <div class="update-time" id="updateTime"></div>
-    <div class="light" id="priceLight"></div>
-</div>
+    <main>
+        <!-- Login Section -->
+        <div id="login-section">
+            <h2>Login</h2>
+            <label for="login-username">Username:</label>
+            <input type="text" id="login-username" name="login-username" required><br><br>
+            <label for="login-password">Password:</label>
+            <input type="password" id="login-password" name="login-password" required><br><br>
+            <button id="login-button">Log In</button>
+            <p id="login-error" style="color: red; display: none;">Incorrect username or password. Please try again.</p>
+            <p>Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
+        </div>
 
-<script>
-    var currentPrice = 0;
+        <!-- Sign-up Section (Initially Hidden) -->
+        <div id="signup-section" style="display: none;">
+            <h2>Sign Up</h2>
+            <label for="signup-username">Username:</label>
+            <input type="text" id="signup-username" name="signup-username" required><br><br>
+            <label for="signup-password">Password:</label>
+            <input type="password" id="signup-password" name="signup-password" required><br><br>
+            <label for="confirm-password">Confirm Password:</label>
+            <input type="password" id="confirm-password" name="confirm-password" required><br><br>
+            <button id="signup-button">Sign Up</button>
+            <p id="signup-error" style="color: red; display: none;">Please enter a username and matching passwords.</p>
+            <p>Already have an account? <a href="#" id="show-login">Log in</a></p>
+        </div>
 
-    // Function to fetch stock data from Alpha Vantage API
-    function fetchStockData(symbol, exchange) {
-        var apiKeyAlphaVantage = '_A_7qGp2lIBrlIltwLM9NT2a3myuCp82'; // Your Alpha Vantage API key
-        var apiUrl = 'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=' + symbol + '&apikey=' + apiKeyAlphaVantage;
+        <!-- Dashboard Section (Hidden by Default) -->
+        <div id="dashboard-section" style="display: none;">
+            <h3 id="ip-title">IP Address</h3>
+            <p id="ip-address">Loading...</p>
+            <p id="city">City: Loading...</p>
+            <p id="country">Country: Loading...</p>
+            <button id="signout-button">Sign Out</button>
+        </div>
+    </main>
 
-        fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => {
-            if (data['Global Quote']) {
-                var stockInfo = data['Global Quote'];
-                var price = parseFloat(stockInfo['05. price']);
-                var output = `
-                    <p>Symbol: ${stockInfo['01. symbol']}</p>
-                    <p>Open: ${stockInfo['02. open']}</p>
-                    <p>High: ${stockInfo['03. high']}</p>
-                    <p>Low: ${stockInfo['04. low']}</p>
-                    <p id="currentPrice">Price: ${price}</p>
-                    <p>Volume: ${stockInfo['06. volume']}</p>
-                    <p>Latest Trading Day: ${stockInfo['07. latest trading day']}</p>
-                    <p>Previous Close: ${stockInfo['08. previous close']}</p>
-                    <p>Change: ${stockInfo['09. change']}</p>
-                    <p>Change Percent: ${stockInfo['10. change percent']}</p>
-                `;
-                document.getElementById('stockData').innerHTML = output;
+    <footer>
+        <p>&copy; IPtime</p>
+    </footer>
 
-                // Update price light
-                updatePriceLight(price);
-            } else {
-                document.getElementById('stockData').innerHTML = '<p>Stock data not found for symbol: ' + symbol + '</p>';
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching stock data:', error);
-            document.getElementById('stockData').innerHTML = '<p>Error fetching stock data. Please try again later.</p>';
-        });
-    }
+    <script>
+        const users = {};  // Store users' data in an object
 
-    // Function to fetch articles about a stock symbol from News API
-    function fetchStockArticles(symbol) {
-        var apiKeyNewsAPI = '62633b4d-3939-42ed-991d-c96a3d853e85'; // News API key
-        var apiUrl = 'https://newsapi.org/v2/everything?q=' + symbol + '&apiKey=' + apiKeyNewsAPI;
-
-        fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => {
-            var articles = data.articles;
-            if (articles.length > 0) {
-                var output = '<h3>Related Articles:</h3>';
-                articles.slice(0, 5).forEach(article => {
-                    output += `
-                        <div class="article">
-                            <h3>${article.title}</h3>
-                            <p>${article.description}</p>
-                            <p><a href="${article.url}" target="_blank">Read more</a></p>
-                        </div>
-                    `;
-                });
-                document.getElementById('articles').innerHTML = output;
-            } else {
-                document.getElementById('articles').innerHTML = '<p>No articles found for symbol: ' + symbol + '</p>';
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching articles:', error);
-            document.getElementById('articles').innerHTML = '<p>Error fetching articles. Please try again later.</p>';
-        });
-    }
-
-    // Update price light based on price change
-    function updatePriceLight(price) {
-        var priceLight = document.getElementById('priceLight');
-        if (currentPrice < price) {
-            priceLight.className = 'light green-light';
-        } else if (currentPrice > price) {
-            priceLight.className = 'light red-light';
+        // Function to display a section and hide others
+        function showSection(sectionId) {
+            const sections = ['login-section', 'signup-section', 'dashboard-section'];
+            sections.forEach(section => {
+                const element = document.getElementById(section);
+                if (section === sectionId) {
+                    element.style.display = 'block';
+                } else {
+                    element.style.display = 'none';
+                }
+            });
         }
-        currentPrice = price;
-    }
 
-    // Function to handle form submission
-    document.getElementById("searchForm").addEventListener("submit", function(event) {
-        event.preventDefault(); // Prevent the default form submission
-        var symbol = document.getElementById("symbol").value.toUpperCase(); // Get the entered stock symbol
-        var exchange = document.getElementById("exchange").value.toUpperCase(); // Get the entered exchange code
-        var stockSymbol = symbol + '.' + exchange; // Combine symbol and exchange code
-        fetchStockData(stockSymbol);
-        fetchStockArticles(symbol);
-        setInterval(function() {
-            fetchStockData(stockSymbol);
-        }, 60000); // Update stock data every minute (adjust as needed)
-    });
-</script>
+        // Show the login section by default
+        showSection('login-section');
 
+        // Function to get the user's IP address, city, and country using ipinfo.io
+        function getIpInfo() {
+            return fetch('https://ipinfo.io/json')
+                .then(response => response.json())
+                .catch(error => {
+                    console.error('Error:', error);
+                    return {
+                        ip: 'Error fetching IP',
+                        city: 'Error fetching city',
+                        country: 'Error fetching country'
+                    };
+                });
+        }
+
+        // Event listener for the Log In button
+        document.getElementById('login-button').addEventListener('click', function () {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            // Check the password
+            if (users[username] && users[username] === password) {
+                showSection('dashboard-section');
+                getIpInfo().then(data => {
+                    document.getElementById('ip-title').textContent = 'IP Address';
+                    document.getElementById('ip-address').textContent = `Your IP: ${data.ip}`;
+                    document.getElementById('city').textContent = `City: ${data.city}`;
+                    document.getElementById('country').textContent = `Country: ${data.country}`;
+                });
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        });
+
+        // Event listener for the Sign Up button
+        document.getElementById('signup-button').addEventListener('click', function () {
+            const username = document.getElementById('signup-username').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (username && password && confirmPassword && password === confirmPassword) {
+                // Store the user's data
+                users[username] = password;
+
+                showSection('dashboard-section');
+                getIpInfo().then(data => {
+                    document.getElementById('ip-title').textContent = 'IP Address';
+                    document.getElementById('ip-address').textContent = `Your IP: ${data.ip}`;
+                    document.getElementById('city').textContent = `City: ${data.city}`;
+                    document.getElementById('country').textContent = `Country: ${data.country}`;
+                });
+            } else {
+                document.getElementById('signup-error').style.display = 'block';
+            }
+        });
+
+        // Event listener to show the login section
+        document.getElementById('show-login').addEventListener('click', function (e) {
+            e.preventDefault();
+            showSection('login-section');
+        });
+
+        // Event listener to show the sign-up section
+        document.getElementById('show-signup').addEventListener('click', function (e) {
+            e.preventDefault();
+            showSection('signup-section');
+        });
+
+        // Event listener for the Sign Out button
+        document.getElementById('signout-button').addEventListener('click', function () {
+            showSection('login-section'); // Redirect to the login section
+        });
+    </script>
 </body>
 </html>
